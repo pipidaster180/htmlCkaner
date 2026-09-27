@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>32TEAM — Проверка сайтов</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: radial-gradient(circle at 50% -10%, rgba(245,197,66,.15), transparent 40%), #0a0a0a;
+  color: #fff;
+  min-height: 100vh;
+  padding: 30px 16px 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 720px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, #fff, #f5c542, #fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #888;
+  font-size: 14px;
+}
+
+.card {
+  background: linear-gradient(145deg, #161410, #0d0c0a);
+  border: 1px solid #2a2620;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 800;
+}
+
+input {
+  width: 100%;
+  padding: 16px 18px;
+  background: #0a0a0a;
+  border: 1px solid #2a2a2a;
+  border-radius: 14px;
+  color: #fff;
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+input:focus {
+  border-color: #f5c542;
+  background: #111;
+  box-shadow: 0 0 0 4px rgba(245,197,66,0.1);
+}
+
+button {
+  width: 100%;
+  margin-top: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, #fff0a5, #f5c542 52%, #c48612);
+  border: none;
+  border-radius: 14px;
+  color: #171207;
+  font-size: 15px;
+  font-weight: 800;
+  font-family: inherit;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(245,197,66,0.25);
+}
+
+button:active { transform: translateY(0); }
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.loader {
+  display: none;
+  width: 32px;
+  height: 32px;
+  border: 3px solid #2a2a2a;
+  border-top-color: #f5c542;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 20px auto;
+}
+
+.loader.show { display: block; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.result { display: none; animation: fadeIn 0.4s ease; }
+.result.show { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.verdict {
+  text-align: center;
+  padding: 24px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  font-weight: 900;
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+
+.verdict.safe { background: rgba(77, 255, 136, 0.08); color: #4dff88; border: 1px solid rgba(77, 255, 136, 0.3); }
+.verdict.warn { background: rgba(255, 200, 66, 0.08); color: #ffc842; border: 1px solid rgba(255, 200, 66, 0.3); }
+.verdict.danger { background: rgba(255, 107, 107, 0.08); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.3); }
+
+.verdict small {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 8px;
+  opacity: 0.8;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #f5c542;
+  margin: 20px 0 12px;
+  font-weight: 800;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid #1f1c17;
+  font-size: 13.5px;
+}
+
+.result-item:last-child { border-bottom: none; }
+
+.result-item .label {
+  color: #888;
+  flex-shrink: 0;
+}
+
+.result-item .value {
+  color: #fff;
+  font-weight: 600;
+  text-align: right;
+  word-break: break-word;
+}
+
+.value.good { color: #4dff88; }
+.value.bad { color: #ff6b6b; }
+.value.warn { color: #ffc842; }
+
+.footer {
+  text-align: center;
+  color: #444;
+  font-size: 11px;
+  letter-spacing: 1px;
+  margin-top: 20px;
+}
+
+@media (min-width: 768px) {
+  body { padding: 50px 20px 80px; }
+  h1 { font-size: 40px; }
+  .card { padding: 32px; }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>32TEAM</h1>
+    <p class="subtitle">Проверка сайтов на скам и безопасность</p>
+  </header>
+
+  <div class="card">
+    <label>Ссылка на сайт</label>
+    <input type="text" id="urlInput" placeholder="example.com" autocomplete="off">
+    <button id="checkBtn">Проверить</button>
+    <div class="loader" id="loader"></div>
+  </div>
+
+  <div class="result" id="result">
+    <div id="verdict"></div>
+    <div class="grid-2">
+      <div>
+        <div class="section-title">📋 Основное</div>
+        <div id="mainInfo"></div>
+      </div>
+      <div>
+        <div class="section-title">📅 Регистрация</div>
+        <div id="regInfo"></div>
+      </div>
+      <div>
+        <div class="section-title">🖥 Инфраструктура</div>
+        <div id="infraInfo"></div>
+      </div>
+      <div>
+        <div class="section-title">🔐 SSL / DNS</div>
+        <div id="sslInfo"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">32TEAM · 2026</div>
+</div>
+
+<script>
+const btn = document.getElementById('checkBtn');
+const input = document.getElementById('urlInput');
+const result = document.getElementById('result');
+const verdictEl = document.getElementById('verdict');
+const mainInfo = document.getElementById('mainInfo');
+const regInfo = document.getElementById('regInfo');
+const infraInfo = document.getElementById('infraInfo');
+const sslInfo = document.getElementById('sslInfo');
+const loader = document.getElementById('loader');
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function getAge(createdDate) {
+  if (!createdDate) return { text: '—', cls: 'warn', days: 0 };
+  const days = Math.floor((Date.now() - new Date(createdDate)) / 86400000);
+  const years = Math.floor(days / 365);
+  const months = Math.floor((days % 365) / 30);
+  let text, cls;
+  if (years > 0) { text = `${years} г. ${months} мес.`; cls = years >= 3 ? 'good' : 'warn'; }
+  else if (months > 0) { text = `${months} мес. ${days % 30} дн.`; cls = 'warn'; }
+  else { text = `${days} дн.`; cls = 'bad'; }
+  return { text, cls, days };
+}
+
+async function safeFetch(url) {
+  try { const r = await fetch(url); if (r.ok) return await r.json(); } catch(e) {}
+  return null;
+}
+
+btn.addEventListener('click', async () => {
+  let url = input.value.trim();
+  if (!url) return;
+  url = url.replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/^www\./, '');
+
+  result.classList.remove('show');
+  loader.classList.add('show');
+  btn.disabled = true;
+
+  try {
+    // 1. RDAP
+    const rdapRes = await fetch(`https://rdap.org/domain/${url}`);
+    if (!rdapRes.ok) throw new Error('Домен не найден');
+    const rdap = await rdapRes.json();
+
+    const events = rdap.events || [];
+    const created = events.find(e => e.eventAction === 'registration')?.eventDate;
+    const expiry = events.find(e => e.eventAction === 'expiration')?.eventDate;
+    const lastChanged = events.find(e => e.eventAction === 'last changed')?.eventDate;
+    const updated = events.find(e => e.eventAction === 'last update of RDAP database')?.eventDate;
+
+    const registrar = rdap.entities?.find(e => e.roles?.includes('registrar'));
+    const registrarName = registrar?.vcardArray?.[1]?.find(v => v[0] === 'fn')?.[3] || '—';
+    
+    const nameservers = rdap.nameservers?.map(ns => ns.ldhName).join(', ') || '—';
+    const statuses = rdap.status?.join(', ') || '—';
+
+    const age = getAge(created);
+
+    // 2. IP + Гео
+    let ipInfo = { ip: '—', country: '—', city: '—', isp: '—', org: '—', as: '—' };
+    const dnsData = await safeFetch(`https://dns.google/resolve?name=${url}&type=A`);
+    if (dnsData?.Answer?.length) {
+      const ip = dnsData.Answer[0].data;
+      ipInfo.ip = ip;
+      const geo = await safeFetch(`http://ip-api.com/json/${ip}?fields=status,country,regionName,city,isp,org,as&lang=ru`);
+      if (geo?.status === 'success') {
+        ipInfo.country = geo.country || '—';
+        ipInfo.region = geo.regionName || '—';
+        ipInfo.city = geo.city || '—';
+        ipInfo.isp = geo.isp || '—';
+        ipInfo.org = geo.org || '—';
+        ipInfo.as = geo.as || '—';
+      }
+    }
+
+    // 3. MX
+    const mxData = await safeFetch(`https://dns.google/resolve?name=${url}&type=MX`);
+    const mx = mxData?.Answer?.map(r => r.data).join(', ') || '—';
+
+    // 4. TXT (SPF, DKIM, verification)
+    const txtData = await safeFetch(`https://dns.google/resolve?name=${url}&type=TXT`);
+    const txt = txtData?.Answer?.map(r => r.data.replace(/"/g, '')).join(' | ') || '—';
+
+    // 5. CNAME
+    const cnameData = await safeFetch(`https://dns.google/resolve?name=www.${url}&type=CNAME`);
+    const cname = cnameData?.Answer?.map(r => r.data).join(', ') || '—';
+
+    // 6. Определяем хостинг
+    let hosting = '—';
+    const nsLower = nameservers.toLowerCase();
+    if (nsLower.includes('cloudflare')) hosting = 'Cloudflare';
+    else if (nsLower.includes('google')) hosting = 'Google Cloud';
+    else if (nsLower.includes('aws') || nsLower.includes('amazon')) hosting = 'AWS';
+    else if (nsLower.includes('beget')) hosting = 'Beget';
+    else if (nsLower.includes('timeweb')) hosting = 'Timeweb';
+    else if (nsLower.includes('reg.ru')) hosting = 'REG.RU';
+    else if (nsLower.includes('nic.ru')) hosting = 'NIC.RU';
+    else if (nsLower.includes('sber')) hosting = 'SberCloud';
+    else if (nsLower.includes('yandex')) hosting = 'Yandex Cloud';
+    else hosting = nameservers.split(',')[0]?.trim() || '—';
+
+    // 7. Вердикт
+    let vClass, vIcon, vText, vDesc;
+    if (age.days < 30) {
+      vClass = 'danger'; vIcon = '❌'; vText = 'СКАМ / ОПАСНО';
+      vDesc = 'Домен создан менее 30 дней назад — это главный признак скама.';
+    } else if (age.days < 365) {
+      vClass = 'warn'; vIcon = '⚠️'; vText = 'ПОДОЗРИТЕЛЬНО';
+      vDesc = 'Домен младше года. Будь осторожен.';
+    } else {
+      vClass = 'safe'; vIcon = '✅'; vText = 'БЕЗОПАСНО';
+      vDesc = 'Домен существует больше года. Риск низкий.';
+    }
+
+    verdictEl.className = `verdict ${vClass}`;
+    verdictEl.innerHTML = `${vIcon} ${vText}<small>${vDesc}</small>`;
+
+    mainInfo.innerHTML = `
+      <div class="result-item"><span class="label">Домен</span><span class="value">${url}</span></div>
+      <div class="result-item"><span class="label">IP</span><span class="value">${ipInfo.ip}</span></div>
+      <div class="result-item"><span class="label">Страна</span><span class="value">${ipInfo.country}</span></div>
+      <div class="result-item"><span class="label">Регион</span><span class="value">${ipInfo.region || '—'}</span></div>
+      <div class="result-item"><span class="label">Город</span><span class="value">${ipInfo.city}</span></div>
+      <div class="result-item"><span class="label">Провайдер</span><span class="value">${ipInfo.isp}</span></div>
+      <div class="result-item"><span class="label">Организация</span><span class="value">${ipInfo.org}</span></div>
+      <div class="result-item"><span class="label">AS</span><span class="value">${ipInfo.as}</span></div>
+    `;
+
+    regInfo.innerHTML = `
+      <div class="result-item"><span class="label">Создан</span><span class="value">${formatDate(created)}</span></div>
+      <div class="result-item"><span class="label">Возраст</span><span class="value ${age.cls}">${age.text}</span></div>
+      <div class="result-item"><span class="label">Истекает</span><span class="value">${formatDate(expiry)}</span></div>
+      <div class="result-item"><span class="label">Изменён</span><span class="value">${formatDate(lastChanged)}</span></div>
+      <div class="result-item"><span class="label">Регистратор</span><span class="value">${registrarName}</span></div>
+      <div class="result-item"><span class="label">Статус</span><span class="value">${statuses}</span></div>
+    `;
+
+    infraInfo.innerHTML = `
+      <div class="result-item"><span class="label">Хостинг</span><span class="value">${hosting}</span></div>
+      <div class="result-item"><span class="label">NS</span><span class="value">${nameservers}</span></div>
+      <div class="result-item"><span class="label">MX</span><span class="value">${mx}</span></div>
+      <div class="result-item"><span class="label">CNAME</span><span class="value">${cname}</span></div>
+    `;
+
+    sslInfo.innerHTML = `
+      <div class="result-item"><span class="label">HTTPS</span><span class="value ${url.includes('http') ? 'bad' : 'good'}">${url.includes('http') ? '⚠️ Проверь' : '✅ Есть'}</span></div>
+      <div class="result-item"><span class="label">TXT</span><span class="value">${txt.length > 100 ? txt.slice(0, 100) + '...' : txt}</span></div>
+    `;
+
+    result.classList.add('show');
+  } catch (e) {
+    verdictEl.className = 'verdict danger';
+    verdictEl.innerHTML = '❌ ОШИБКА<small>' + e.message + '</small>';
+    mainInfo.innerHTML = regInfo.innerHTML = infraInfo.innerHTML = sslInfo.innerHTML = '';
+    result.classList.add('show');
+  } finally {
+    loader.classList.remove('show');
+    btn.disabled = false;
+  }
+});
+
+input.addEventListener('keypress', e => { if (e.key === 'Enter') btn.click(); });
+</script>
+
+</body>
+</html>
